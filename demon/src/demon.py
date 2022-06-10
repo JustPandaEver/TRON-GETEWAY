@@ -1,16 +1,17 @@
 import asyncio
 import decimal
-from datetime import datetime
+from time import time as timer
+from datetime import datetime, timedelta
 from typing import Optional, Tuple, List, Dict
 
 import aiofiles
 from tronpy.tron import TAddress
 from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
 
-from src.sender import Sender
+from src.service import Sender, Getter, send_all_from_folder_not_send
 from src.utils import Utils
 from src.types import HeadMessage, BodyMessage
-from src.types import BodyProcessingTransaction, BodySendBalancer, BodyTransaction
+from src.types import BodyRun, BodyProcessingTransaction, BodySendBalancer, BodyTransaction
 from src.types import CoinHelper
 from config import LAST_BLOCK
 from config import Config, decimals, logger
@@ -206,3 +207,56 @@ class TransactionDemon:
             # Body
             body.package.to_json
         ])
+
+    # <<<===================================>>> Run Methods <<<======================================================>>>
+
+    async def run(self):
+        """The script runs all the time"""
+        start = await self.get_last_block_number()
+        pack_size = 1
+        while True:
+            end = await self.get_node_block_number()
+            if end - start < pack_size:
+                await asyncio.sleep(3)
+            else:
+                start_time = timer()
+                addresses = await Getter.get_addresses()
+                success = await asyncio.gather(*[
+                    self.processing_block(block_number=block_number, addresses=addresses)
+                    for block_number in range(start, start + pack_size)
+                ])
+                logger.error("END BLOCK: {} | TIME TAKEN: {} SEC".format(
+                    start, str(timedelta(seconds=timer() - start_time)))
+                )
+                if all(success):
+                    start += pack_size
+                    await self.save_block_number(block_number=start)
+
+    # <<<===================================>>> Start Methods <<<====================================================>>>
+
+    async def start_in_range(self, start: int, end: int, addresses: List[TAddress] = None) -> Optional:
+        for block_number in range(start, end+1):
+            if addresses is None:
+                addresses = await Getter.get_addresses()
+            await self.processing_block(block_number=int(block_number), addresses=addresses)
+
+    async def start_in_list(self, list_blocks: List[int], addresses: List[TAddress] = None) -> Optional:
+        for block_number in list_blocks:
+            if addresses is None:
+                addresses = await Getter.get_addresses()
+            await self.processing_block(block_number=int(block_number), addresses=addresses)
+
+    async def start(self, body: BodyRun) -> Optional:
+        logger.error("START OF THE SEARCH\nSTART: {}\nEND: {}".format(body.start, body.end))
+        if body.list_blocks:
+            await self.start_in_list(list_blocks=body.list_blocks, addresses=body.addresses)
+        elif body.start and body.end:
+            await self.start_in_range(body.start, body.end, addresses=body.addresses)
+        elif body.start and not body.end:
+            await self.start_in_range(body.start, end=await self.get_node_block_number(), addresses=body.addresses)
+        elif not body.start and body.end:
+            await self.start_in_range(await self.get_node_block_number(), end=body.end, addresses=body.addresses)
+        else:
+            await send_all_from_folder_not_send()
+            await self.run()
+        logger.error("END OF SEARCH")

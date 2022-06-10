@@ -29,6 +29,17 @@ class CoinHelper:
     def is_token(address: TAddress) -> bool:
         return address in [USDT_ADDRESS]
 
+
+# <<<==========================================>>> RUN <<<===========================================================>>>
+
+
+class BodyRun:
+    start: Optional[int] = None
+    end: Optional[int] = None
+    list_blocks: Optional[List[int]] = None
+    addresses: Optional[List[TAddress]] = None
+
+
 # <<<==========================================>>> DATACLASSES <<<===================================================>>>
 
 
