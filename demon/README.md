@@ -23,7 +23,7 @@ Searches for transactions with the necessary wallet addresses in the TRON blockc
 > ```
 > ###### Note. The start should be greater than the end. You can specify end and start not together!
 -------
-> An additional startup parameter. Search by wallets. It is used `ONLY` in conjunction with block search or range search.
+> Launching a wallet search. If you do not specify additional parameters, the search will occur for all transactions of these wallets.
 > ```shell
 > python ./app.py ... --addresses listAddresses
 > python ./app.py ... -a listAddresses
