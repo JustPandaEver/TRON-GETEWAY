@@ -2,6 +2,14 @@ import os
 import logging
 import decimal
 
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.join(ROOT_DIR, "files")
+
+LAST_BLOCK = os.path.join(BASE_DIR, "last_block.txt")
+
+if "last_block.txt" not in os.listdir(BASE_DIR):
+    with open(LAST_BLOCK, "w") as file:
+        file.write("")
 
 decimals = decimal.Context()
 decimals.prec = 8
@@ -16,5 +24,6 @@ class Config:
     QUEUE_BALANCER = os.getenv("QUEUE_BALANCER")
 
     NODE_URL = os.getenv("NODE_URL")
+    HELPER_KEYS = "8d375175-fa31-490d-a224-63a056adb60b"
 
     ADMIN_ADDRESS = os.getenv("ADMIN_ADDRESS")
