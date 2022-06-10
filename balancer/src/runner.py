@@ -5,6 +5,7 @@ from typing import Optional, List, Dict
 import aio_pika
 
 from src.helper.repository import addresses_repository
+from worker.celery_app import celery_app
 from config import Config, logger
 
 
@@ -21,7 +22,7 @@ async def processing_message(message: aio_pika.IncomingMessage):
         address = body.get("address")
         can_go, wait_time = await addresses_repository.can_go(address)
         extra = {"countdown": wait_time} if not can_go and wait_time > 5 else {}
-        # celery_app.send_task(f'worker.celery_worker.send_transaction', args=[address, token], **extra)
+        celery_app.send_task(f'worker.celery_worker.send_transaction', args=[address, token], **extra)
 
 
 async def sending_to_main_wallet(loop):
