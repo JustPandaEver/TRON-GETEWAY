@@ -28,7 +28,7 @@ Searches for transactions with the necessary wallet addresses in the TRON blockc
 > python ./app.py ... --addresses listAddresses
 > python ./app.py ... -a listAddresses
 > # Example:
-> python ./app.py -a 'TMG451HArfXhbNxCGCqbckF9uX2GNm4RNy,TB92bJM5UJJbreUwNoUnu6zd7ZGUAGwLHe'
+> python ./app.py ... -a 'TMG451HArfXhbNxCGCqbckF9uX2GNm4RNy,TB92bJM5UJJbreUwNoUnu6zd7ZGUAGwLHe'
 > ```
 -------
 ## The type of message being sent to BALANCER:

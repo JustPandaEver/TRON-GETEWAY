@@ -1,10 +1,10 @@
 import decimal
 import base58
-from typing import Union, List, Tuple, Dict
+from typing import Union, Tuple
 
 from tronpy.tron import TAddress
 
-from src.types import MAX_SUN, MIN_SUN, SUN
+from src.helper.types import MAX_SUN, MIN_SUN, SUN
 from config import decimals as dml
 
 
