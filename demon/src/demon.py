@@ -8,10 +8,11 @@ from tronpy.tron import TAddress
 from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
 
 from src.utils import Utils
-from src.types import BodyProcessingTransaction
+from src.types import HeadMessage, BodyMessage
+from src.types import BodyProcessingTransaction, BodySendBalancer, BodyTransaction
 from src.types import CoinHelper
 from config import LAST_BLOCK
-from config import Config, logger
+from config import Config, decimals, logger
 
 
 class TransactionDemon:
@@ -32,7 +33,7 @@ class TransactionDemon:
             network=network
         )
 
-    # <<<===================================>>> Block Helper <<<=====================================================>>>
+    # <<<===================================>>> Block/Transaction Helper <<<=========================================>>>
 
     async def get_node_block_number(self) -> int:
         """Get the number of the private block in the node"""
@@ -69,6 +70,16 @@ class TransactionDemon:
             return block, len(block["transactions"])
         return None, 0
 
+    async def get_transaction_fee(self, transaction_hash: str) -> decimal.Decimal:
+        try:
+            transaction = await self.node.get_transaction_info(transaction_hash)
+        except Exception as error:
+            logger.error(f"ERROR STEP 74: {error}")
+            transaction = await self.public_node.get_transaction_info(transaction_hash)
+        if "fee" not in transaction:
+            return decimals.create_decimal(0)
+        return decimals.create_decimal(Utils.from_sun(transaction["fee"]))
+
     # <<<===================================>>> Smart Contract Helper <<<============================================>>>
 
     @staticmethod
@@ -104,7 +115,14 @@ class TransactionDemon:
                 ])
                 transactions = list(filter(lambda x: x is not None, transactions))
                 if len(transactions) > 0:
-                    pass
+                    await asyncio.gather(*[
+                        TransactionDemon.send_to_balancer(body=BodySendBalancer(
+                            package=transaction,
+                            addresses=addresses,
+                            block_number=block_number
+                        ))
+                        for transaction in transactions
+                    ])
             else:
                 logger.error(f"BLOCK: {block_number} IS CLEAR!")
             return True
@@ -112,7 +130,7 @@ class TransactionDemon:
             logger.error(f"ERROR STEP 76: {error}")
             return False
 
-    async def processing_transaction(self, body: BodyProcessingTransaction):
+    async def processing_transaction(self, body: BodyProcessingTransaction) -> Optional[BodyMessage]:
         """
         This method analyzes transactions in detail, and searches for the necessary addresses in them.
         """
@@ -120,7 +138,6 @@ class TransactionDemon:
             # If the transaction is not confirmed or with an error, then skip it.
             if body.transaction["ret"][0]["contractRet"] != "SUCCESS":
                 return None
-            token: Optional[str] = None
             # Value in the transaction
             transaction_value = body.transaction["raw_data"]["contract"][0]["parameter"]["value"]
             # Transaction type
@@ -136,7 +153,7 @@ class TransactionDemon:
                 to_address = Utils.to_base58check_address(transaction_value["to_address"])
                 transaction_addresses.append(to_address)
             elif transaction_type == "TriggerSmartContract" and CoinHelper.is_token(transaction_value["contract_address"]) \
-                and transaction_value["data"] is not None and 140 > len(transaction_value["data"]) > 130:
+                    and transaction_value["data"] is not None and 140 > len(transaction_value["data"]) > 130:
                 # We record the recipient if the transaction was made in tokens.
                 to_address = Utils.to_base58check_address("41" + transaction_value["data"][32:72])
                 transaction_addresses.append(to_address)
@@ -150,6 +167,46 @@ class TransactionDemon:
                     break
 
             if address is not None:
-                ""
+                if transaction_type == "TransferContract":
+                    amount, symbol = decimals.create_decimal(Utils.from_sun(transaction_value["amount"])), "TRX"
+                elif transaction_type == "TriggerSmartContract":
+                    symbol, _, amount = TransactionDemon.smart_contract_transaction(
+                        data=transaction_value["data"],
+                        contract_address=transaction_value["contract_address"]
+                    )
+                else:
+                    amount, symbol = 0, "TRX"
+                return BodyMessage(address=address, transactions=[BodyTransaction(
+                    timestamp=body.timestamp,
+                    transactionHash=body.transaction["txID"],
+                    amount=amount,
+                    fee=float(await self.get_transaction_fee(body.transaction["txID"])),
+                    inputs=[{from_address: amount}],
+                    outputs=[{to_address: amount}],
+                    token=symbol
+                )])
+            return None
         except Exception as error:
             logger.error(f"ERROR STEP 30: {error}")
+            return None
+
+    # <<<===================================>>> Sender Methods <<<===================================================>>>
+
+    @staticmethod
+    async def send_to_balancer(body: BodySendBalancer) -> Optional:
+        """
+        We are preparing transactions to be sent to RabbitMQ
+        """
+        message = [
+            # Head
+            HeadMessage(
+                network=f"TRON-{body.package.transactions[0].token.upper()}", block_number=body.block_number
+            ).to_json,
+            # Body
+            body.package.to_json
+        ]
+        try:
+            recipient = ""
+            sender = ""
+        except Exception:
+            pass
