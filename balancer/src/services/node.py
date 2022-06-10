@@ -1,9 +1,9 @@
 import decimal
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Tuple, Dict
 
 from tronpy.tron import TAddress
 from tronpy.exceptions import AddressNotFound
-from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
+from tronpy.async_tron import PrivateKey, AsyncTron, AsyncHTTPProvider
 
 from src.helper.utils import Utils
 from src.helper.types import BodyOptimalFee, BodySendTransaction
@@ -117,11 +117,8 @@ class NodeTRON:
             fee += 267 / 1_000
         return decimals.create_decimal(fee)
 
-    async def send_transaction(self, body: BodySendTransaction) -> bool:
+    async def send_transaction(self, body: BodySendTransaction) -> Tuple[bool, Optional[str]]:
         """Send transaction"""
-        fee = await self.optimal_fee(body=BodyOptimalFee(
-            fromAddress=body.fromAddress, toAddress=body.toAddress, symbol=body.symbol
-        ))
         if body.symbol is None:
             amount = Utils.to_sun(body.amount)
             transaction = self.node.trx.transfer(from_=body.fromAddress, to=body.toAddress, amount=amount)
@@ -133,5 +130,9 @@ class NodeTRON:
                 raise Exception("You do not have enough funds on your balance to make a transaction!!!")
             transaction = await contract.functions.transfer(body.toAddress, amount)
             transaction = transaction.with_owner(body.fromAddress)
-
         transaction = await transaction.build()
+        transaction = transaction.sign(priv_key=PrivateKey(private_key_bytes=bytes.fromhex(body.fromPrivateKey)))
+        return True, transaction.txid
+
+
+node_tron = NodeTRON()
