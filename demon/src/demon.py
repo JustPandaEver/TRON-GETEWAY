@@ -7,6 +7,7 @@ import aiofiles
 from tronpy.tron import TAddress
 from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
 
+from src.sender import Sender
 from src.utils import Utils
 from src.types import HeadMessage, BodyMessage
 from src.types import BodyProcessingTransaction, BodySendBalancer, BodyTransaction
@@ -161,7 +162,7 @@ class TransactionDemon:
             address = None
             for transaction_address in transaction_addresses:
                 # We are looking for the address of our wallet among the addresses in the transaction.
-                if transaction_address in body.addresses:
+                if transaction_address in body.addresses and Config.ADMIN_ADDRESS not in transaction_address:
                     # If we find it, we write it to a variable.
                     address = transaction_address
                     break
@@ -197,16 +198,11 @@ class TransactionDemon:
         """
         We are preparing transactions to be sent to RabbitMQ
         """
-        message = [
+        return Sender.send_to_balancer(message=[
             # Head
             HeadMessage(
                 network=f"TRON-{body.package.transactions[0].token.upper()}", block_number=body.block_number
             ).to_json,
             # Body
             body.package.to_json
-        ]
-        try:
-            recipient = ""
-            sender = ""
-        except Exception:
-            pass
+        ])
