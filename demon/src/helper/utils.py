@@ -1,6 +1,6 @@
 import decimal
 import base58
-from typing import Union, Tuple
+from typing import Any, Union, Optional, List, Tuple
 
 from tronpy.tron import TAddress
 
@@ -56,3 +56,17 @@ class Utils:
             Utils.to_base58check_address("41"+data[32:72]),
             dml.create_decimal(int("0x"+data[72], 0) / decimals)
         )
+
+    @staticmethod
+    def correct_parser_data(_type: Any, data: str = None) -> Optional[Any]:
+        if data is None:
+            return None
+        data = data.replace(" ", "")
+        if _type == int and data.isdigit():
+            return int(data)
+        elif _type == list and len(data) > 30:
+            if data.find(",") > 0:
+                return list(filter(lambda x: x != "", data.split(",")))
+            return [data]
+        else:
+            raise Exception("Something is wrong!")

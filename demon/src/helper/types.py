@@ -32,7 +32,7 @@ class CoinHelper:
 
 # <<<==========================================>>> RUN <<<===========================================================>>>
 
-
+@dataclass
 class BodyRun:
     start: Optional[int] = None
     end: Optional[int] = None
