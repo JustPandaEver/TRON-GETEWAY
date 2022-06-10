@@ -4,6 +4,7 @@ from typing import Optional, List, Dict
 
 import aiofiles
 import aio_pika
+import requests
 from tronpy.tron import TAddress
 
 from config import NOT_SEND
@@ -50,3 +51,15 @@ class Getter:
     @staticmethod
     async def get_addresses() -> List[TAddress]:
         pass
+
+    @staticmethod
+    def get_all_blocks_by_list_addresses(addresses: List[TAddress]) -> List[int]:
+        blocks = []
+        for address in addresses:
+            response = requests.get(
+                url=f"https://api.{'' if Config.NETWORK == 'mainnet' else 'shasta.'}trongrid.io/v1/accounts/{address}/transactions?limit=200",
+                headers={"Accept": "application/json", "TRON-PRO-API-KEY": "16c3b7ca-d498-4314-aa1d-a224135faa26"}
+            ).json()
+            if "data" in response and len(response["data"]) > 0:
+                blocks.extend(sorted([block["blockNumber"] for block in response["data"]]))
+        return sorted(list(set(blocks)))
