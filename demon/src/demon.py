@@ -11,7 +11,7 @@ from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
 from src.services.service import Sender, Getter, send_all_from_folder_not_send
 from src.helper.utils import Utils
 from src.helper.types import HeadMessage, BodyMessage
-from src.helper.types import BodyRun, BodyProcessingTransaction, BodySendBalancer, BodyTransaction
+from src.helper.types import BodyProcessingTransaction, BodySendBalancer, BodyTransaction
 from src.helper.types import CoinHelper
 from config import LAST_BLOCK
 from config import Config, decimals, logger
@@ -42,7 +42,7 @@ class TransactionDemon:
         try:
             return int(await self.node.get_latest_block_number())
         except Exception as error:
-            logger.error(f"ERROR STEP 36: {error}")
+            logger.error(f"ERROR STEP 43: {error}")
             return int(await self.public_node.get_latest_block_number())
 
     async def get_last_block_number(self) -> int:
@@ -66,7 +66,7 @@ class TransactionDemon:
         try:
             block = await self.node.get_block(id_or_num=block_number)
         except Exception as error:
-            logger.error(f"ERROR: {error}")
+            logger.error(f"ERROR STEP 67: {error}")
             block = await self.public_node.get_block(id_or_num=block_number)
         if "transactions" in block.keys() and isinstance(block["transactions"], list):
             return block, len(block["transactions"])
@@ -76,7 +76,7 @@ class TransactionDemon:
         try:
             transaction = await self.node.get_transaction_info(transaction_hash)
         except Exception as error:
-            logger.error(f"ERROR STEP 74: {error}")
+            logger.error(f"ERROR STEP 77: {error}")
             transaction = await self.public_node.get_transaction_info(transaction_hash)
         if "fee" not in transaction:
             return decimals.create_decimal(0)
@@ -129,7 +129,7 @@ class TransactionDemon:
                 logger.error(f"BLOCK: {block_number} IS CLEAR!")
             return True
         except Exception as error:
-            logger.error(f"ERROR STEP 76: {error}")
+            logger.error(f"ERROR STEP 107: {error}")
             return False
 
     async def processing_transaction(self, body: BodyProcessingTransaction) -> Optional[BodyMessage]:
@@ -189,7 +189,7 @@ class TransactionDemon:
                 )])
             return None
         except Exception as error:
-            logger.error(f"ERROR STEP 30: {error}")
+            logger.error(f"ERROR STEP 140: {error}")
             return None
 
     # <<<===================================>>> Sender Methods <<<===================================================>>>
@@ -212,6 +212,7 @@ class TransactionDemon:
 
     async def run(self):
         """The script runs all the time"""
+        await send_all_from_folder_not_send()
         start = await self.get_last_block_number()
         pack_size = 1
         while True:
@@ -234,29 +235,20 @@ class TransactionDemon:
 
     # <<<===================================>>> Start Methods <<<====================================================>>>
 
-    async def start_in_range(self, start: int, end: int, addresses: List[TAddress] = None) -> Optional:
+    async def start_in_range(self, start: int, end: int, addresses: List[TAddress] = None) -> bool:
+        logger.error("START OF THE SEARCH\nSTART: {}\nEND: {}".format(start, end))
         for block_number in range(start, end+1):
             if addresses is None:
                 addresses = await Getter.get_addresses()
             await self.processing_block(block_number=int(block_number), addresses=addresses)
+        logger.error("END OF SEARCH")
+        return True
 
-    async def start_in_list(self, list_blocks: List[int], addresses: List[TAddress] = None) -> Optional:
+    async def start_in_list(self, list_blocks: List[int], addresses: List[TAddress] = None) -> bool:
+        logger.error("START OF THE SEARCH\nLIST: {}".format(list_blocks))
         for block_number in list_blocks:
             if addresses is None:
                 addresses = await Getter.get_addresses()
             await self.processing_block(block_number=int(block_number), addresses=addresses)
-
-    async def start(self, body: BodyRun) -> Optional:
-        logger.error("START OF THE SEARCH\nSTART: {}\nEND: {}".format(body.start, body.end))
-        if body.list_blocks:
-            await self.start_in_list(list_blocks=body.list_blocks, addresses=body.addresses)
-        elif body.start and body.end:
-            await self.start_in_range(body.start, body.end, addresses=body.addresses)
-        elif body.start and not body.end:
-            await self.start_in_range(body.start, end=await self.get_node_block_number(), addresses=body.addresses)
-        elif not body.start and body.end:
-            await self.start_in_range(await self.get_node_block_number(), end=body.end, addresses=body.addresses)
-        else:
-            await send_all_from_folder_not_send()
-            await self.run()
         logger.error("END OF SEARCH")
+        return True
