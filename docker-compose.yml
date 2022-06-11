@@ -1,0 +1,122 @@
+version: '3'
+
+services:
+  tron_demon:
+    restart: always
+    build:
+      context: demon/
+      dockerfile: Dockerfile
+    container_name: tron_demon
+    command: /usr/bin/supervisord
+    env_file:
+      - ./.env
+    networks:
+      - tron_geteway_network
+    volumes:
+      - ./files:/home/app/files
+    logging:
+      options:
+        max-size: 10m
+  tron_balancer:
+    restart: always
+    build:
+      context: balancer/
+      dockerfile: Dockerfile
+    container_name: tron_balancer
+    command: /usr/bin/supervisord
+    env_file:
+      - ./.env
+    networks:
+      - tron_geteway_network
+    volumes:
+      - ./files:/home/app/files
+    logging:
+      options:
+        max-size: 10m
+
+  tron_rabbitmq:
+    restart: always
+    container_name: tron_rabbitmq
+    image: rabbitmq:3.8-management
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "cookie"
+      RABBITMQ_DEFAULT_USER: "root"
+      RABBITMQ_DEFAULT_PASS: "password"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    volumes:
+      - ./config/docker/rabbitmq:/var/lib/rabbitmq
+    ports:
+      - "4369:4369"
+      - "5672:5672"
+      - "25672:25672"
+      - "15672:15672"
+    expose:
+      - 5672
+      - 15672
+    networks:
+      - tron_geteway_network
+    logging:
+      options:
+        max-size: 10m
+  tron_redis:
+    restart: always
+    container_name: tron_redis
+    image: "bitnami/redis:5.0.4"
+    environment:
+      - REDIS_PASSWORD=password123
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./config/docker/redis:/bitnami/redis/data"
+    networks:
+      - tron_geteway_network
+    logging:
+      options:
+        max-size: 10m
+  tron_celery_flower:
+    restart: always
+    container_name: tron_celery_flower
+    image: gregsi/latest-celery-flower-docker:latest
+    environment:
+      - AMQP_USERNAME=root
+      - AMQP_PASSWORD=password
+      - AMQP_ADMIN_USERNAME=root
+      - AMQP_ADMIN_PASSWORD=password
+      - AMQP_HOST=tron_rabbitmq
+      - AMQP_PORT=5672
+      - AMQP_ADMIN_HOST=tron_rabbitmq
+      - AMQP_ADMIN_PORT=15672
+      - FLOWER_BASIC_AUTH=user:test
+    ports:
+      - "5555:5555"
+    expose:
+      - 5555
+    depends_on:
+      - tron_rabbitmq
+      - tron_redis
+    networks:
+      - tron_geteway_network
+    logging:
+      options:
+        max-size: 10m
+  worker:
+    restart: always
+    container_name: tron_balancer_worker
+    build:
+      context: balancer/
+      dockerfile: Dockerfile
+    depends_on:
+      - tron_rabbitmq
+      - tron_redis
+    env_file:
+      - ./.env
+    command: celery --app worker.celery_worker worker -l info -Q test-queue -c 1
+    networks:
+      - tron_geteway_network
+    logging:
+      options:
+        max-size: 10m
+
+networks:
+  tron_geteway_network:
+    driver: bridge
