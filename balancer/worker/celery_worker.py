@@ -1,4 +1,5 @@
 import asyncio
+from typing import List, Dict
 
 from tronpy.tron import TAddress
 
@@ -12,5 +13,5 @@ def run_sync(f):
 
 
 @celery_app.task(acks_late=True)
-def send_transaction(address: TAddress, token: str):
-    run_sync(send_transaction_service(address=address, token=token))
+def send_transaction(address: TAddress, token: str, message: List[Dict]):
+    run_sync(send_transaction_service(address=address, token=token, message=message))
