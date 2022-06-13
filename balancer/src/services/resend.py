@@ -35,7 +35,7 @@ class UserValidator:
         return True, fee, balance_native
 
 
-async def send_to_wallet_to_wallet(address: TAddress, token: str, message: List[Dict]) -> Optional:
+async def send_to_wallet_to_wallet(address: TAddress, token: str) -> Optional:
     try:
         user = User(
             address=address,
@@ -93,5 +93,5 @@ async def send_to_wallet_to_wallet(address: TAddress, token: str, message: List[
         ))
     except Exception as error:
         logger.error(f"{utils.time_now()} | ERROR STEP 40: {error}")
-        await helper.write_to_error(error=str(error), step=41, message=str(message))
-        await sender.resend_to_balancer(message=message)
+        await helper.write_to_error(error=str(error), step=41)
+        await sender.resend_to_balancer(message={"address": address, "token": token})

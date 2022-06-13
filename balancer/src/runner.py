@@ -1,6 +1,6 @@
 import json
 import asyncio
-from typing import Optional, List, Dict
+from typing import Union, Optional, List, Dict
 
 import aio_pika
 
@@ -16,14 +16,18 @@ async def processing_message(message: aio_pika.IncomingMessage):
     :param message: Message from queue
     """
     async with message.process():
-        msg: List[Dict, Dict] = json.loads(message.body)
-        logger.error(f"GET INIT MESSAGE: {message}")
-        head, body = msg
-        token = head.get("network").split("-")[0]
-        address = body.get("address")
+        msg: Union[List[Dict], Dict] = json.loads(message.body)
+        logger.error(f"{utils.time_now()} | GET INIT MESSAGE: {msg}")
+        if isinstance(msg, dict):
+            address = msg.get("address")
+            token = msg.get("token")
+        else:
+            head, body = msg
+            token = head.get("network").split("-")[0]
+            address = body.get("address")
         can_go, wait_time = await addresses_repository.can_go(address)
         extra = {"countdown": wait_time} if not can_go and wait_time > 5 else {}
-        celery_app.send_task(f'worker.celery_worker.send_transaction', args=[address, token, msg], **extra)
+        celery_app.send_task(f'worker.celery_worker.send_transaction', args=[address, token], **extra)
 
 
 async def run(loop):

@@ -59,7 +59,7 @@ class Utils:
 
 class Helper:
     @staticmethod
-    async def write_to_not_send(message: List[Dict]) -> Optional:
+    async def write_to_not_send(message: Union[Dict, List[Dict]]) -> Optional:
         async with aiofiles.open(os.path.join(NOT_RESEND, f"{uuid.uuid4()}.json"), 'w') as file:
             await file.write(json.dumps(message, default=utils.validate_json))
 
