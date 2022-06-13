@@ -4,3 +4,7 @@ class NotFeeResend(Exception):
 
 class NotSendToMainWallet(Exception):
     pass
+
+
+class NotPrivateKey(Exception):
+    pass

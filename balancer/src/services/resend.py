@@ -95,6 +95,3 @@ async def send_to_wallet_to_wallet(address: TAddress, token: str, message: List[
         logger.error(f"ERROR STEP 41: {error}")
         await helper.write_to_error(error=str(error), step=41, message=str(message))
         await sender.resend_to_balancer(message=message)
-    finally:
-        pass
-
