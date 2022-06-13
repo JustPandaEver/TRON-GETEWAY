@@ -7,7 +7,7 @@ lock = Lock()
 
 
 class AddressesRepository:
-    """Message repository"""
+    """Address repository - Serves for temporary storage of data for celery"""
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(AddressesRepository, cls).__new__(cls)

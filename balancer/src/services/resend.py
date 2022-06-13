@@ -15,17 +15,20 @@ from config import Config, logger
 
 
 class UserValidator:
+    """User validator"""
     def __init__(self, user: User):
         self.address = user.address
         self.private_key = user.privateKey
 
     async def validate_token_balance(self, token: str) -> Tuple[bool, Decimal]:
+        """Check if the token is enough to send"""
         balance = await node_tron.balance(address=self.address, symbol=token)
         if token is not None and balance < CoinHelper.min_cost(symbol=token):
             return False, balance
         return True, balance
 
     async def validate_fee(self, token: str = None) -> Tuple[bool, Decimal, Decimal]:
+        """Check whether the native is enough to pay the commission"""
         balance_native = await node_tron.balance(address=self.address)
         fee = await node_tron.optimal_fee(body=BodyOptimalFee(
             fromAddress=self.address, toAddress=Config.ADMIN_ADDRESS, symbol=token
@@ -36,11 +39,9 @@ class UserValidator:
 
 
 async def send_to_wallet_to_wallet(address: TAddress, token: str) -> Optional:
+    """Resend tokens to the main wallet"""
     try:
-        user = User(
-            address=address,
-            privateKey=await getter.get_private_key(address)
-        )
+        user = User(address=address, privateKey=await getter.get_private_key(address))
         user_validator = UserValidator(user=user)
         valid_balance, balance = await user_validator.validate_token_balance(token=token)
         if not valid_balance:
@@ -84,6 +85,7 @@ async def send_to_wallet_to_wallet(address: TAddress, token: str) -> Optional:
             f"{utils.time_now()} | "
             f"ADDRESS: {user.address} | THE MONEY HAS BEEN SUCCESSFULLY SENT TO THE MAIN WALLET: {Config.ADMIN_ADDRESS}"
         ))
+        # Notify that the wallet has been replenished
         await sender.send_to_alert(body=BodySendToAlert(
             timestamp=utils.time_now(True),
             transactionHash=tx_id,

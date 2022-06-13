@@ -5,6 +5,7 @@ from config import logger
 
 
 async def main(loop):
+    """Run balancer"""
     await asyncio.gather(*[run(loop)])
 
 

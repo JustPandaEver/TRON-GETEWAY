@@ -21,16 +21,18 @@ USDT_INFO = {"bd": 345, "f": 100, "nb": 14631, "hb": 29631} \
 
 
 class CoinHelper:
-    # (symbol, address, decimals)
+    # (symbol, address, decimals, token_ifno)
     USDT = ("USDT", USDT_ADDRESS, 10**6, USDT_INFO)
     COST = {"USDT": Config.TOKEN_COST_USDT}
 
     @staticmethod
     def get_token(symbol: str) -> Optional[Tuple[str, TAddress, int]]:
+        """Get information about the token"""
         return CoinHelper.__dict__.get(symbol)
 
     @staticmethod
     def min_cost(symbol: str) -> decimal.Decimal:
+        """Get the price for the minimum transfer to the main wallet"""
         return CoinHelper.COST.get(symbol)
 
 
@@ -38,6 +40,7 @@ class CoinHelper:
 
 
 class ToJson:
+    """Object to json"""
     @property
     def to_json(self) -> Dict:
         raise NotImplementedError
@@ -45,32 +48,36 @@ class ToJson:
 
 @dataclass
 class User:
-    address: TAddress
-    privateKey: str
+    """User model"""
+    address: TAddress                   # Wallet address
+    privateKey: str                     # Wallet private key
 
 
 @dataclass
 class BodyOptimalFee:
-    fromAddress: TAddress
-    toAddress: TAddress
-    symbol: Optional[str] = None
+    """For optimal fee func"""
+    fromAddress: TAddress               # Sender's wallet address
+    toAddress: TAddress                 # Receiver's wallet address
+    symbol: Optional[str] = None        # Token name. Example: USDT
 
 
 @dataclass
 class BodySendTransaction:
-    fromAddress: TAddress
-    fromPrivateKey: str
-    toAddress: TAddress
-    amount: float
-    symbol: Optional[str] = None
+    """For send transaction func"""
+    fromAddress: TAddress               # Sender's wallet address
+    fromPrivateKey: str                 # Sender's wallet private key
+    toAddress: TAddress                 # Receiver's wallet address
+    amount: float                       # Transaction amount
+    symbol: Optional[str] = None        # Token name. Example: USDT
 
 
 @dataclass
 class BodySendToAlert(ToJson):
-    timestamp: int
-    transactionHash: str
-    address: TAddress
-    amount: float
+    """For send to alert"""
+    timestamp: int                      # The time of creation of the transfer to the main wallet
+    transactionHash: str                # Transaction hash
+    address: TAddress                   # The address of the wallet whose balance needs to be replenished
+    amount: float                       # The amount you need to top up
 
     @property
     def to_json(self) -> Dict:

@@ -45,6 +45,7 @@ class Utils:
 
     @staticmethod
     def time_now(timestep: bool = False) -> Union[int, datetime]:
+        """Get the current time"""
         date = datetime.now()
         if timestep:
             return int(datetime.timestamp(date))
@@ -52,6 +53,7 @@ class Utils:
 
     @staticmethod
     def validate_json(obj: Any):
+        """For json default"""
         if isinstance(obj, decimal.Decimal):
             return float(obj)
         return obj
@@ -60,11 +62,13 @@ class Utils:
 class Helper:
     @staticmethod
     async def write_to_not_send(message: Union[Dict, List[Dict]]) -> Optional:
+        """Record data about an unsent transaction"""
         async with aiofiles.open(os.path.join(NOT_RESEND, f"{uuid.uuid4()}.json"), 'w') as file:
             await file.write(json.dumps(message, default=utils.validate_json))
 
     @staticmethod
     async def write_to_error(error: str, step: int, message: str = None) -> Optional:
+        """Record error information"""
         async with aiofiles.open(ERROR, 'a', encoding='utf-8') as file:
             await file.write(
                 f"ERROR: {error} | STEP {step} | MESSAGE: {message if message is not None else '~Not message~'}\n"
