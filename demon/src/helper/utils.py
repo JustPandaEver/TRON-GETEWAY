@@ -58,7 +58,7 @@ class Utils:
     def convert_data(data: str, decimals: int) -> Tuple[TAddress, decimal.Decimal]:
         return (
             Utils.to_base58check_address("41"+data[32:72]),
-            dml.create_decimal(int("0x"+data[72], 0) / decimals)
+            dml.create_decimal(int("0x"+data[72:], 0) / decimals)
         )
 
     @staticmethod
