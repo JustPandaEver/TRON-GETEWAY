@@ -36,7 +36,7 @@ class Sender:
         try:
             connection = await aio_pika.connect_robust(url=Config.RABBITMQ_URL)
             channel = await connection.channel()
-            await channel.declare_queue(Config.QUEUE_BALANCER)
+            await channel.declare_queue(Config.QUEUE_BALANCER, durable=True)
             await channel.default_exchange.publish(
                 message=aio_pika.Message(body=json.dumps(message, default=utils.validate_json).encode()),
                 routing_key=Config.QUEUE_BALANCER
