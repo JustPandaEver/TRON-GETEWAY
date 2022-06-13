@@ -1,4 +1,5 @@
 import decimal
+from datetime import datetime
 from typing import Union
 
 from src.utils.types import MIN_SUN, MAX_SUN, SUN
@@ -35,3 +36,10 @@ class Utils:
         if result < MIN_SUN or result > MAX_SUN:
             raise ValueError("Resulting wei value must be between 1 and 2**256 - 1")
         return int(result)
+
+    @staticmethod
+    def time_now() -> datetime:
+        return datetime.now()
+
+
+utils = Utils

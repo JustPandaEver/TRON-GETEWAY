@@ -20,4 +20,5 @@ class Config:
     HELPER_KEYS = "8d375175-fa31-490d-a224-63a056adb60b"
 
     ADMIN_ADDRESS = os.getenv("ADMIN_ADDRESS")
+    ADMIN_PRIVATE_KEY = os.getenv("ADMIN_PRIVATE_KEY")
     TOKEN_COST_USDT = decimals.create_decimal(os.getenv("TOKEN_COST_USDT", "1.0"))
