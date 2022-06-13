@@ -29,6 +29,7 @@ async def send_all_from_folder_not_send():
 
 
 class Sender:
+    """This class is used for sending data"""
     @staticmethod
     async def send_to_balancer(message: List[Dict]) -> Optional:
         """Send transaction to Balancer"""
@@ -52,13 +53,15 @@ class Sender:
 
 
 class Getter:
-    USER_ADDRESSES = Config.API_URL + "/get-user-addresses"
+    """This class is used to get data"""
+    USERS_ADDRESS = Config.API_URL + "/get-user-addresses"
 
     @staticmethod
     async def get_addresses() -> Optional[List[TAddress]]:
+        """Get the addresses of all wallets in the system"""
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(url=Getter.USER_ADDRESSES) as response:
+                async with session.get(url=Getter.USERS_ADDRESS) as response:
                     addresses = await response.json()
             return addresses
         except Exception as error:
@@ -68,6 +71,7 @@ class Getter:
 
     @staticmethod
     def get_all_blocks_by_list_addresses(addresses: List[TAddress]) -> List[int]:
+        """Get all the blocks in which there were transactions of this wallet"""
         blocks = []
         for address in addresses:
             response = requests.get(
@@ -79,5 +83,5 @@ class Getter:
         return sorted(list(set(blocks)))
 
 
-getter = Getter
 sender = Sender
+getter = Getter
