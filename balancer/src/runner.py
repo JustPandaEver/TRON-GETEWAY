@@ -19,12 +19,10 @@ async def processing_message(message: aio_pika.IncomingMessage):
         msg: Union[List[Dict], Dict] = json.loads(message.body)
         logger.error(f"{utils.time_now()} | GET INIT MESSAGE: {msg}")
         if isinstance(msg, dict):
-            address = msg.get("address")
-            token = msg.get("token")
+            address, token = msg.get("address"), msg.get("token")
         else:
             head, body = msg
-            token = head.get("network").split("-")[0]
-            address = body.get("address")
+            address, token = body.get("address"), head.get("network").split("-")[1]
         can_go, wait_time = await addresses_repository.can_go(address)
         extra = {"countdown": wait_time} if not can_go and wait_time > 5 else {}
         celery_app.send_task(f'worker.celery_worker.send_transaction', args=[address, token], **extra)
@@ -52,4 +50,5 @@ async def run(loop):
                     async for message in queue_iter:
                         await processing_message(message=message)
         except Exception as error:
-            logger.error(f"{utils.time_now()} | ERROR STEP 32: {error}")
+            if str(error) != "[Errno 111] Connect call failed ('172.27.0.5', 5672)":
+                logger.error(f"{utils.time_now()} | ERROR STEP 36: {error}")

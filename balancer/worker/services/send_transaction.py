@@ -1,5 +1,3 @@
-from typing import List, Dict
-
 from tronpy.tron import TAddress
 
 from src.services.resend import send_to_wallet_to_wallet

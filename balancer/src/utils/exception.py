@@ -1,10 +1,10 @@
-class NotFeeResend(Exception):
+class NotFeeResend(BaseException):
     pass
 
 
-class NotSendToMainWallet(Exception):
+class NotSendToMainWallet(BaseException):
     pass
 
 
-class NotPrivateKey(Exception):
+class NotPrivateKey(BaseException):
     pass

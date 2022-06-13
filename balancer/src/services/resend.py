@@ -42,7 +42,6 @@ async def send_to_wallet_to_wallet(address: TAddress, token: str) -> Optional:
             privateKey=await getter.get_private_key(address)
         )
         user_validator = UserValidator(user=user)
-
         valid_balance, balance = await user_validator.validate_token_balance(token=token)
         if not valid_balance:
             logger.error((
