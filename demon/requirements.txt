@@ -2,3 +2,4 @@ aio-pika==6.8.0
 aiofiles==0.7.0
 aiohttp==3.8.1
 tronpy==0.2.6
+art

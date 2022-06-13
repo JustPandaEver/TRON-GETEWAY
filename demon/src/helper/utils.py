@@ -15,6 +15,7 @@ from config import NOT_SEND, ERROR, decimals as dml
 class Utils:
     @staticmethod
     def to_base58check_address(raw_address: Union[str, bytes]) -> TAddress:
+        """Adjust the address to the desired view"""
         if isinstance(raw_address, (str,)):
             if raw_address[0] == "T" and len(raw_address) == 34:
                 try:
@@ -56,6 +57,7 @@ class Utils:
 
     @staticmethod
     def convert_data(data: str, decimals: int) -> Tuple[TAddress, decimal.Decimal]:
+        """Unpack the date in the transaction"""
         return (
             Utils.to_base58check_address("41"+data[32:72]),
             dml.create_decimal(int("0x"+data[72:], 0) / decimals)
@@ -63,6 +65,7 @@ class Utils:
 
     @staticmethod
     def correct_parser_data(_type: Any, data: str = None) -> Optional[Any]:
+        """For run script"""
         if data is None:
             return None
         data = data.replace(" ", "")
@@ -77,6 +80,7 @@ class Utils:
 
     @staticmethod
     def validate_json(obj: Any):
+        """For json default"""
         if isinstance(obj, decimal.Decimal):
             return float(obj)
         return obj
@@ -85,11 +89,13 @@ class Utils:
 class Helper:
     @staticmethod
     async def write_to_not_send(message: List[Dict]) -> Optional:
+        """Record data about an unsent transaction"""
         async with aiofiles.open(os.path.join(NOT_SEND, f"{uuid.uuid4()}.json"), 'w') as file:
             await file.write(json.dumps(message, default=utils.validate_json))
 
     @staticmethod
     async def write_to_error(error: str, step: int, message: str = None) -> Optional:
+        """Record error information"""
         async with aiofiles.open(ERROR, 'a', encoding='utf-8') as file:
             await file.write(
                 f"ERROR: {error} | STEP {step} | MESSAGE: {message if message is not None else '~Not message~'}\n"

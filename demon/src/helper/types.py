@@ -34,16 +34,18 @@ class CoinHelper:
 
 @dataclass
 class BodyRun:
-    start: Optional[int] = None
-    end: Optional[int] = None
-    list_blocks: Optional[List[int]] = None
-    addresses: Optional[List[TAddress]] = None
+    """For run script"""
+    start: Optional[int] = None                     # The block to start with
+    end: Optional[int] = None                       # The block to end on
+    list_blocks: Optional[List[int]] = None         # List of blocks to search for
+    addresses: Optional[List[TAddress]] = None      # List of addresses whose transactions need to be searched for.
 
 
 # <<<==========================================>>> DATACLASSES <<<===================================================>>>
 
 
 class ToJson:
+    """Object to json"""
     @property
     def to_json(self) -> Dict:
         raise NotImplementedError
@@ -52,21 +54,21 @@ class ToJson:
 @dataclass
 class BodyProcessingTransaction:
     """For func processing transaction"""
-    transaction: Dict                       # The transaction that needs to be parsed
-    addresses: List[TAddress]               # A list of addresses to search for transactions
-    timestamp: int                          # The time of confirmation of the transaction in the block
+    transaction: Dict                               # The transaction that needs to be parsed
+    addresses: List[TAddress]                       # A list of addresses to search for transactions
+    timestamp: int                                  # The time of confirmation of the transaction in the block
 
 
 @dataclass
 class BodyTransaction(ToJson):
     """Transaction"""
-    timestamp: int                          # The time of confirmation of the transaction in the block
-    transactionHash: str                    # Transaction hash
-    amount: float                           # Transaction amount
-    fee: float                              # Transaction fee
-    inputs: List[Dict[str, float]]          # Sender/s
-    outputs: List[Dict[str, float]]         # Recipient/s
-    token: Optional[str] = None             # Token name
+    timestamp: int                                  # The time of confirmation of the transaction in the block
+    transactionHash: str                            # Transaction hash
+    amount: float                                   # Transaction amount
+    fee: float                                      # Transaction fee
+    inputs: List[Dict[str, float]]                  # Sender/s
+    outputs: List[Dict[str, float]]                 # Recipient/s
+    token: Optional[str] = None                     # Token name
 
     @property
     def to_json(self) -> Dict:
@@ -78,8 +80,8 @@ class BodyTransaction(ToJson):
 @dataclass
 class HeadMessage(ToJson):
     """Head message for balancer"""
-    network: str                            # Network. Example: TRON-USDT, TRON-TRX
-    block_number: int                       # Block number
+    network: str                                    # Network. Example: TRON-USDT, TRON-TRX
+    block_number: int                               # Block number
 
     @property
     def to_json(self) -> Dict:
@@ -89,8 +91,8 @@ class HeadMessage(ToJson):
 @dataclass
 class BodyMessage(ToJson):
     """Body message for balancer"""
-    address: TAddress                       # Our wallet that participated in the transaction
-    transactions: List[BodyTransaction]     # Transactions found in the block
+    address: TAddress                               # Our wallet that participated in the transaction
+    transactions: List[BodyTransaction]             # Transactions found in the block
 
     @property
     def to_json(self) -> Dict:
@@ -103,5 +105,5 @@ class BodyMessage(ToJson):
 @dataclass
 class BodySendBalancer:
     """For func send to balancer"""
-    package: BodyMessage                    # Packaged Message
-    block_number: int                       # Block number
+    package: BodyMessage                            # Packaged Message
+    block_number: int                               # Block number

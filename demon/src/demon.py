@@ -25,6 +25,7 @@ class TransactionDemon:
         self.connect()
 
     def connect(self):
+        """Connect to a node"""
         network = "mainnet" if Config.NETWORK != "TESTNET" else "shasta"
         self.node: AsyncTron = AsyncTron(
             provider=AsyncHTTPProvider(Config.NODE_URL) if network == "mainnet" else None,
@@ -63,6 +64,7 @@ class TransactionDemon:
             await file.write(str(block_number))
 
     async def get_block_and_count(self, block_number: int) -> Tuple[Optional[Dict], int]:
+        """Get a block and the number of transactions in it"""
         try:
             block = await self.node.get_block(id_or_num=block_number)
         except Exception as error:
@@ -73,6 +75,7 @@ class TransactionDemon:
         return None, 0
 
     async def get_transaction_fee(self, transaction_hash: str) -> decimal.Decimal:
+        """Get a transaction fee"""
         try:
             transaction = await self.node.get_transaction_info(transaction_hash)
         except Exception as error:
@@ -240,6 +243,7 @@ class TransactionDemon:
     # <<<===================================>>> Start Methods <<<====================================================>>>
 
     async def start_in_range(self, start: int, end: int, addresses: List[TAddress] = None) -> bool:
+        """Range Search"""
         logger.error("START OF THE SEARCH\nSTART: {}\nEND: {}".format(start, end))
         for block_number in range(start, end+1):
             if addresses is None:
@@ -249,6 +253,7 @@ class TransactionDemon:
         return True
 
     async def start_in_list(self, list_blocks: List[int], addresses: List[TAddress] = None) -> bool:
+        """Array Search"""
         logger.error("START OF THE SEARCH\nLIST: {}".format(list_blocks))
         for block_number in list_blocks:
             if addresses is None:

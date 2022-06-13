@@ -3,6 +3,8 @@ import argparse
 import asyncio
 from typing import Optional
 
+from art import tprint
+
 from src.demon import TransactionDemon
 from src.services.service import Getter
 from src.helper.utils import Utils
@@ -56,6 +58,7 @@ class Parser:
 if __name__ == '__main__':
     """TRON DEMON V2"""
     namespace = Parser.create_parser().parse_args(sys.argv[1:])
+    tprint("TRON DEMON", font="bulbhead")
     if namespace.start or namespace.end or namespace.addresses or namespace.blocks:
         asyncio.run(Parser.run(data=BodyRun(
             start=Utils.correct_parser_data(data=namespace.start, _type=int),
