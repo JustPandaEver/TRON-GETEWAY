@@ -202,7 +202,7 @@ class TransactionDemon:
         """
         We are preparing transactions to be sent to RabbitMQ
         """
-        return sender.send_to_balancer(message=[
+        return await sender.send_to_balancer(message=[
             # Head
             HeadMessage(
                 network=f"TRON-{body.package.transactions[0].token.upper()}", block_number=body.block_number

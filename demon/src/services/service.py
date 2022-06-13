@@ -8,7 +8,7 @@ import aiohttp
 import requests
 from tronpy.tron import TAddress
 
-from src.helper.utils import helper
+from src.helper.utils import utils, helper
 from config import NOT_SEND, Config, logger
 
 
@@ -38,9 +38,10 @@ class Sender:
             channel = await connection.channel()
             await channel.declare_queue(Config.QUEUE_BALANCER)
             await channel.default_exchange.publish(
-                message=aio_pika.Message(body=json.dumps(message).encode()),
+                message=aio_pika.Message(body=json.dumps(message, default=utils.validate_json).encode()),
                 routing_key=Config.QUEUE_BALANCER
             )
+            logger.error(f"SEND TO BALANCER")
         except Exception as error:
             logger.error(f"ERROR: {error}")
             await helper.write_to_error(error=str(error), step=37, message=str(message))
@@ -56,10 +57,11 @@ class Getter:
     @staticmethod
     async def get_addresses() -> Optional[List[TAddress]]:
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url=Getter.USER_ADDRESSES) as response:
-                    addresses = await response.json()
-            return addresses
+            # async with aiohttp.ClientSession() as session:
+            #     async with session.get(url=Getter.USER_ADDRESSES) as response:
+            #         addresses = await response.json()
+            # return addresses
+            return ['TEiVn3A6npbb4EJGb6N3BHifKzkhJG1ksx', 'TJmV58h1StTogUuVUoogtPoE5i3YPCS7yb']
         except Exception as error:
             logger.error(f"ERROR STEP 58: {error}")
             await helper.write_to_error(error=str(error), step=59)

@@ -104,5 +104,4 @@ class BodyMessage(ToJson):
 class BodySendBalancer:
     """For func send to balancer"""
     package: BodyMessage                    # Packaged Message
-    addresses: List[TAddress]               # Addresses of our wallets
     block_number: int                       # Block number
