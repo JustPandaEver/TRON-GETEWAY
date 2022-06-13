@@ -44,8 +44,11 @@ class Utils:
         return int(result)
 
     @staticmethod
-    def time_now() -> datetime:
-        return datetime.now()
+    def time_now(timestep: bool = False) -> Union[int, datetime]:
+        date = datetime.now()
+        if timestep:
+            return int(datetime.timestamp(date))
+        return date
 
     @staticmethod
     def validate_json(obj: Any):

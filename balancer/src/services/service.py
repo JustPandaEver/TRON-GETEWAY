@@ -2,6 +2,7 @@ from typing import Optional, List, Dict
 
 from tronpy.tron import TAddress
 
+from src.utils.types import BodySendToAlert
 from src.utils.utils import helper
 from config import logger
 
@@ -14,7 +15,7 @@ class Getter:
 
 class Sender:
     @staticmethod
-    async def send_to_alert(body):
+    async def send_to_alert(body: BodySendToAlert):
         pass
 
     @staticmethod

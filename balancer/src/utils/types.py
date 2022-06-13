@@ -57,3 +57,11 @@ class BodySendTransaction:
     toAddress: TAddress
     amount: float
     symbol: Optional[str] = None
+
+
+@dataclass
+class BodySendToAlert:
+    timestamp: int
+    transactionHash: str
+    address: TAddress
+    amount: float
