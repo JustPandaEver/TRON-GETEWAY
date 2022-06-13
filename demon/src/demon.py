@@ -120,10 +120,11 @@ class TransactionDemon:
                     await asyncio.gather(*[
                         TransactionDemon.send_to_balancer(body=BodySendBalancer(
                             package=transaction,
-                            addresses=addresses,
                             block_number=block_number
                         ))
                         for transaction in transactions
+                        # If the recipient is a wallet that is in our system
+                        if list(transaction.transactions[0].outputs[0].keys())[0] in addresses
                     ])
             else:
                 logger.error(f"BLOCK: {block_number} IS CLEAR!")
