@@ -25,7 +25,7 @@ async def processing_message(message: aio_pika.IncomingMessage):
         celery_app.send_task(f'worker.celery_worker.send_transaction', args=[address, token], **extra)
 
 
-async def sending_to_main_wallet(loop):
+async def run(loop):
     while True:
         try:
             connection: Optional[aio_pika.RobustConnection]  = None

@@ -10,9 +10,10 @@ decimals.prec = 8
 
 class Config:
     NETWORK = os.getenv("NETWORK", "TESTNET").upper()
+    API_URL = os.getenv("API_URL", "https://task-alexey-prsarev")
 
     REDIS_URL = os.getenv("REDIS_URL")
-    RABBITMQ_URL = os.getenv("RABBITMQ_URL")
+    RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqps://yubbvrbt:52cIr-IEy45n6hptj5n0aIT0LRn0cnZ6@goose.rmq2.cloudamqp.com/yubbvrbt")
     QUEUE_BALANCER = os.getenv("QUEUE_BALANCER", "balancer_messanger")
 
     NODE_URL = os.getenv("NODE_URL", "http://tron-mainnet.mangobank.elcorp.io:8090")
