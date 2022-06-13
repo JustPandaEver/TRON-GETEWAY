@@ -1,0 +1,2 @@
+class NotFeeResend(Exception):
+    pass

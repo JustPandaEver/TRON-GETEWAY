@@ -2,6 +2,18 @@ import os
 import logging
 import decimal
 
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.join(ROOT_DIR, "files")
+
+NOT_RESEND = os.path.join(BASE_DIR, 'not_send')
+ERROR = os.path.join(BASE_DIR, "balancer_error.txt")
+
+if "files" not in os.listdir(ROOT_DIR):
+    os.mkdir(BASE_DIR)
+if 'not_resend' not in os.listdir(BASE_DIR):
+    os.mkdir(NOT_RESEND)
+
 logger = logging.getLogger(__name__)
 
 decimals = decimal.Context()

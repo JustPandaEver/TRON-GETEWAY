@@ -1,8 +1,14 @@
+import os
+import uuid
+import json
 import decimal
 from datetime import datetime
-from typing import Union
+from typing import Any, Optional, Union, List, Dict
+
+import aiofiles
 
 from src.utils.types import MIN_SUN, MAX_SUN, SUN
+from config import NOT_RESEND, ERROR
 
 
 class Utils:
@@ -41,5 +47,26 @@ class Utils:
     def time_now() -> datetime:
         return datetime.now()
 
+    @staticmethod
+    def validate_json(obj: Any):
+        if isinstance(obj, decimal.Decimal):
+            return float(obj)
+        return obj
+
+
+class Helper:
+    @staticmethod
+    async def write_to_not_send(message: List[Dict]) -> Optional:
+        async with aiofiles.open(os.path.join(NOT_RESEND, f"{uuid.uuid4()}.json"), 'w') as file:
+            await file.write(json.dumps(message, default=utils.validate_json))
+
+    @staticmethod
+    async def write_to_error(error: str, step: int, message: str = None) -> Optional:
+        async with aiofiles.open(ERROR, 'a', encoding='utf-8') as file:
+            await file.write(
+                f"ERROR: {error} | STEP {step} | MESSAGE: {message if message is not None else '~Not message~'}\n"
+            )
+
 
 utils = Utils
+helper = Helper
