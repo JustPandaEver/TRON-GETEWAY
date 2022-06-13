@@ -78,9 +78,9 @@ async def send_to_wallet_to_wallet(address: TAddress, token: str) -> Optional:
                 f"{utils.time_now()} | "
                 f"ADDRESS: {user.address} | THE TRANSFER TO THE MAIN WALLET DID NOT HAPPEN! | AMOUNT: {balance}"
             ))
-            raise NotSendToMainWallet((
+            raise NotSendToMainWallet(
                 f"{utils.time_now()} | THE TRANSFER TO THE MAIN WALLET DID NOT HAPPEN! | FROM: {user.address}"
-            ))
+            )
         logger.error((
             f"{utils.time_now()} | "
             f"ADDRESS: {user.address} | THE MONEY HAS BEEN SUCCESSFULLY SENT TO THE MAIN WALLET: {Config.ADMIN_ADDRESS}"
