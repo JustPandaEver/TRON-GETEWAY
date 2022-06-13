@@ -25,7 +25,7 @@ class TransactionDemon:
         self.connect()
 
     def connect(self):
-        network = "mainnet" if Config.NODE_URL != "TESTNET" else "shasta"
+        network = "mainnet" if Config.NETWORK != "TESTNET" else "shasta"
         self.node: AsyncTron = AsyncTron(
             provider=AsyncHTTPProvider(Config.NODE_URL) if network == "mainnet" else None,
             network=network
@@ -215,6 +215,7 @@ class TransactionDemon:
 
     async def run(self):
         """The script runs all the time"""
+        logger.error("START TRON DEMON")
         await send_all_from_folder_not_send()
         start = await self.get_last_block_number()
         pack_size = 1

@@ -64,4 +64,4 @@ if __name__ == '__main__':
             addresses=Utils.correct_parser_data(data=namespace.addresses, _type=list)
         )))
     else:
-        asyncio.run(await TransactionDemon().run())
+        asyncio.run(TransactionDemon().run())
