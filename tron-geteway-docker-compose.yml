@@ -17,22 +17,6 @@ services:
     logging:
       options:
         max-size: 10m
-  tron_balancer:
-    restart: always
-    build:
-      context: balancer/
-      dockerfile: Dockerfile
-    container_name: tron_balancer
-    command: /usr/bin/supervisord
-    env_file:
-      - ./.env
-    networks:
-      - tron_geteway_network
-    volumes:
-      - ./files:/home/app/files
-    logging:
-      options:
-        max-size: 10m
 
   tron_rabbitmq:
     restart: always
@@ -41,7 +25,7 @@ services:
     environment:
       RABBITMQ_ERLANG_COOKIE: "cookie"
       RABBITMQ_DEFAULT_USER: "root"
-      RABBITMQ_DEFAULT_PASS: "password"
+      RABBITMQ_DEFAULT_PASS: "password123"
       RABBITMQ_DEFAULT_VHOST: "/"
     volumes:
       - ./config/docker/rabbitmq:/var/lib/rabbitmq
@@ -79,9 +63,9 @@ services:
     image: gregsi/latest-celery-flower-docker:latest
     environment:
       - AMQP_USERNAME=root
-      - AMQP_PASSWORD=password
+      - AMQP_PASSWORD=password123
       - AMQP_ADMIN_USERNAME=root
-      - AMQP_ADMIN_PASSWORD=password
+      - AMQP_ADMIN_PASSWORD=password123
       - AMQP_HOST=tron_rabbitmq
       - AMQP_PORT=5672
       - AMQP_ADMIN_HOST=tron_rabbitmq
@@ -117,6 +101,23 @@ services:
       options:
         max-size: 10m
 
+  tron_balancer:
+    restart: always
+    build:
+      context: balancer/
+      dockerfile: Dockerfile
+    container_name: tron_balancer
+    command: /usr/bin/supervisord
+    env_file:
+      - ./.env
+    networks:
+      - tron_geteway_network
+    volumes:
+      - ./files:/home/app/files
+    logging:
+      options:
+        max-size: 10m
+  
 networks:
   tron_geteway_network:
     driver: bridge
