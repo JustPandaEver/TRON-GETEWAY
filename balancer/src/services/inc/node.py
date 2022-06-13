@@ -88,8 +88,8 @@ class NodeTRON:
             except AddressNotFound:
                 balance = 0
         else:
-            _, address, dml, __ = CoinHelper.get_token(symbol=symbol)
-            contract = await self.node.get_contract(address)
+            _, contract_address, dml, __ = CoinHelper.get_token(symbol=symbol.upper())
+            contract = await self.node.get_contract(contract_address)
             if int(await contract.functions.balanceOf(address)) > 0:
                 balance = int(await contract.functions.balanceOf(address)) / dml
             else:
@@ -132,6 +132,7 @@ class NodeTRON:
             transaction = transaction.with_owner(body.fromAddress)
         transaction = await transaction.build()
         transaction = transaction.sign(priv_key=PrivateKey(private_key_bytes=bytes.fromhex(body.fromPrivateKey)))
+        await transaction.broadcast()
         return True, transaction.txid
 
 

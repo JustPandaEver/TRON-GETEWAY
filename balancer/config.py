@@ -31,6 +31,6 @@ class Config:
     NODE_URL = os.getenv("NODE_URL", "http://tron-mainnet.mangobank.elcorp.io:8090")
     HELPER_KEYS = "8d375175-fa31-490d-a224-63a056adb60b"
 
-    ADMIN_ADDRESS = os.getenv("ADMIN_ADDRESS")
-    ADMIN_PRIVATE_KEY = os.getenv("ADMIN_PRIVATE_KEY")
+    ADMIN_ADDRESS = os.getenv("ADMIN_ADDRESS", "TKh65nBir3AnSSigXG1NTy5Jh5vdYzoLmt")
+    ADMIN_PRIVATE_KEY = os.getenv("ADMIN_PRIVATE_KEY", "43c745e5b27ece320464b5c10f7d5331648f0098563049daf609cb766a8b1512")
     TOKEN_COST_USDT = decimals.create_decimal(os.getenv("TOKEN_COST_USDT", "1.0"))

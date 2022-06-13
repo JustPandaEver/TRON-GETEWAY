@@ -27,7 +27,7 @@ class UserValidator:
 
     async def validate_fee(self, token: str = None) -> Tuple[bool, Decimal, Decimal]:
         balance_native = await node_tron.balance(address=self.address)
-        fee = node_tron.optimal_fee(body=BodyOptimalFee(
+        fee = await node_tron.optimal_fee(body=BodyOptimalFee(
             fromAddress=self.address, toAddress=Config.ADMIN_ADDRESS, symbol=token
         ))
         if balance_native - fee <= 0:

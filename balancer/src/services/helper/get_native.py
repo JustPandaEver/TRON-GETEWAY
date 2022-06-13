@@ -8,7 +8,7 @@ from config import Config, logger
 
 async def get_native(address: str, amount: decimal.Decimal) -> bool:
     logger.error(f"{utils.time_now()} | ADMIN WALLET | SEND NATIVE TO PAY FEE | TO: {address} AMOUNT: {amount} TRX")
-    status, tx_id = node_tron.send_transaction(body=BodySendTransaction(
+    status, tx_id = await node_tron.send_transaction(body=BodySendTransaction(
         fromAddress=Config.ADMIN_ADDRESS,
         fromPrivateKey=Config.ADMIN_PRIVATE_KEY,
         toAddress=address,

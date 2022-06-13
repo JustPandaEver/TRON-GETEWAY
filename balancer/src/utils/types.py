@@ -1,6 +1,6 @@
 import decimal
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 from tronpy.tron import TAddress
 
@@ -37,6 +37,12 @@ class CoinHelper:
 # <<<======================================>>> DATACLASSES <<<=======================================================>>>
 
 
+class ToJson:
+    @property
+    def to_json(self) -> Dict:
+        raise NotImplementedError
+
+
 @dataclass
 class User:
     address: TAddress
@@ -60,8 +66,12 @@ class BodySendTransaction:
 
 
 @dataclass
-class BodySendToAlert:
+class BodySendToAlert(ToJson):
     timestamp: int
     transactionHash: str
     address: TAddress
     amount: float
+
+    @property
+    def to_json(self) -> Dict:
+        raise self.__dict__
