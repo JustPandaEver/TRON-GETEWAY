@@ -8,8 +8,8 @@ import aiofiles
 from tronpy.tron import TAddress
 from tronpy.async_tron import AsyncTron, AsyncHTTPProvider
 
-from src.services.service import Sender, Getter, send_all_from_folder_not_send
-from src.helper.utils import Utils
+from src.services.service import sender, getter, send_all_from_folder_not_send
+from src.helper.utils import utils, helper
 from src.helper.types import HeadMessage, BodyMessage
 from src.helper.types import BodyProcessingTransaction, BodySendBalancer, BodyTransaction
 from src.helper.types import CoinHelper
@@ -80,7 +80,7 @@ class TransactionDemon:
             transaction = await self.public_node.get_transaction_info(transaction_hash)
         if "fee" not in transaction:
             return decimals.create_decimal(0)
-        return decimals.create_decimal(Utils.from_sun(transaction["fee"]))
+        return decimals.create_decimal(utils.from_sun(transaction["fee"]))
 
     # <<<===================================>>> Smart Contract Helper <<<============================================>>>
 
@@ -92,7 +92,7 @@ class TransactionDemon:
         :param contract_address: Smart contract (Token TRC20) address
         """
         token_info = CoinHelper.get_token_by_address(address=contract_address)
-        address, amount = Utils.convert_data(data=data, decimals=token_info[2])
+        address, amount = utils.convert_data(data=data, decimals=token_info[2])
         return token_info[0], address, amount
 
     # <<<===================================>>> Main Methods <<<=====================================================>>>
@@ -130,6 +130,7 @@ class TransactionDemon:
             return True
         except Exception as error:
             logger.error(f"ERROR STEP 107: {error}")
+            await helper.write_to_error(error=str(error), step=107)
             return False
 
     async def processing_transaction(self, body: BodyProcessingTransaction) -> Optional[BodyMessage]:
@@ -148,16 +149,16 @@ class TransactionDemon:
             transaction_addresses, from_address, to_address = [], None, None
             if transaction_value["owner_address"] is not None:
                 # Recording the sender
-                from_address = Utils.to_base58check_address(transaction_value["owner_address"])
+                from_address = utils.to_base58check_address(transaction_value["owner_address"])
                 transaction_addresses.append(from_address)
             if transaction_type == "TransferContract" and transaction_value["to_address"] is not None:
                 # We record the recipient if the transaction was made in the native currency.
-                to_address = Utils.to_base58check_address(transaction_value["to_address"])
+                to_address = utils.to_base58check_address(transaction_value["to_address"])
                 transaction_addresses.append(to_address)
             elif transaction_type == "TriggerSmartContract" and CoinHelper.is_token(transaction_value["contract_address"]) \
                     and transaction_value["data"] is not None and 140 > len(transaction_value["data"]) > 130:
                 # We record the recipient if the transaction was made in tokens.
-                to_address = Utils.to_base58check_address("41" + transaction_value["data"][32:72])
+                to_address = utils.to_base58check_address("41" + transaction_value["data"][32:72])
                 transaction_addresses.append(to_address)
 
             address = None
@@ -170,7 +171,7 @@ class TransactionDemon:
 
             if address is not None:
                 if transaction_type == "TransferContract":
-                    amount, symbol = decimals.create_decimal(Utils.from_sun(transaction_value["amount"])), "TRX"
+                    amount, symbol = decimals.create_decimal(utils.from_sun(transaction_value["amount"])), "TRX"
                 elif transaction_type == "TriggerSmartContract":
                     symbol, _, amount = TransactionDemon.smart_contract_transaction(
                         data=transaction_value["data"],
@@ -189,7 +190,8 @@ class TransactionDemon:
                 )])
             return None
         except Exception as error:
-            logger.error(f"ERROR STEP 140: {error}")
+            logger.error(f"ERROR STEP 142: {error}")
+            await helper.write_to_error(error=str(error), step=142)
             return None
 
     # <<<===================================>>> Sender Methods <<<===================================================>>>
@@ -199,7 +201,7 @@ class TransactionDemon:
         """
         We are preparing transactions to be sent to RabbitMQ
         """
-        return Sender.send_to_balancer(message=[
+        return sender.send_to_balancer(message=[
             # Head
             HeadMessage(
                 network=f"TRON-{body.package.transactions[0].token.upper()}", block_number=body.block_number
@@ -221,7 +223,7 @@ class TransactionDemon:
                 await asyncio.sleep(3)
             else:
                 start_time = timer()
-                addresses = await Getter.get_addresses()
+                addresses = await getter.get_addresses()
                 success = await asyncio.gather(*[
                     self.processing_block(block_number=block_number, addresses=addresses)
                     for block_number in range(start, start + pack_size)
@@ -239,7 +241,7 @@ class TransactionDemon:
         logger.error("START OF THE SEARCH\nSTART: {}\nEND: {}".format(start, end))
         for block_number in range(start, end+1):
             if addresses is None:
-                addresses = await Getter.get_addresses()
+                addresses = await getter.get_addresses()
             await self.processing_block(block_number=int(block_number), addresses=addresses)
         logger.error("END OF SEARCH")
         return True
@@ -248,7 +250,7 @@ class TransactionDemon:
         logger.error("START OF THE SEARCH\nLIST: {}".format(list_blocks))
         for block_number in list_blocks:
             if addresses is None:
-                addresses = await Getter.get_addresses()
+                addresses = await getter.get_addresses()
             await self.processing_block(block_number=int(block_number), addresses=addresses)
         logger.error("END OF SEARCH")
         return True

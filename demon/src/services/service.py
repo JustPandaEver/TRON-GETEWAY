@@ -8,8 +8,8 @@ import aiohttp
 import requests
 from tronpy.tron import TAddress
 
-from config import NOT_SEND
-from config import Config, logger
+from src.helper.utils import helper
+from config import NOT_SEND, Config, logger
 
 
 async def send_all_from_folder_not_send():
@@ -24,6 +24,7 @@ async def send_all_from_folder_not_send():
             os.remove(path)
         except Exception as error:
             logger.error("ERROR: {}\nNOT SEND: {}".format(error, file_name))
+            await helper.write_to_error(error=str(error), step=20)
             continue
 
 
@@ -42,6 +43,8 @@ class Sender:
             )
         except Exception as error:
             logger.error(f"ERROR: {error}")
+            await helper.write_to_error(error=str(error), step=37, message=str(message))
+            await helper.write_to_not_send(message=message)
         finally:
             if connection is not None and not connection.is_closed:
                 await connection.close()
@@ -59,6 +62,7 @@ class Getter:
             return addresses
         except Exception as error:
             logger.error(f"ERROR STEP 58: {error}")
+            await helper.write_to_error(error=str(error), step=59)
             return []
 
     @staticmethod
@@ -72,3 +76,7 @@ class Getter:
             if "data" in response and len(response["data"]) > 0:
                 blocks.extend(sorted([block["blockNumber"] for block in response["data"]]))
         return sorted(list(set(blocks)))
+
+
+getter = Getter
+sender = Sender

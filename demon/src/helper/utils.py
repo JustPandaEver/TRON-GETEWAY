@@ -85,4 +85,10 @@ class Helper:
     @staticmethod
     async def write_to_error(error: str, step: int, message: str = None) -> Optional:
         async with aiofiles.open(ERROR, 'a', encoding='utf-8') as file:
-            await file.write(f"{error} STEP {step} | MESSAGE: {message if message is not None else '~Not message~'}")
+            await file.write(
+                f"ERROR: {error} | STEP {step} | MESSAGE: {message if message is not None else '~Not message~'}"
+            )
+
+
+utils = Utils
+helper = Helper
