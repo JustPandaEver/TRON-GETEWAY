@@ -5,9 +5,9 @@ from tronpy.tron import TAddress
 from tronpy.exceptions import AddressNotFound
 from tronpy.async_tron import PrivateKey, AsyncTron, AsyncHTTPProvider
 
-from src.helper.utils import Utils
-from src.helper.types import BodyOptimalFee, BodySendTransaction
-from src.helper.types import CoinHelper
+from src.utils.utils import Utils
+from src.utils.types import BodyOptimalFee, BodySendTransaction
+from src.utils.types import CoinHelper
 from config import Config, decimals
 
 

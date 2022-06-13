@@ -38,6 +38,12 @@ class CoinHelper:
 
 
 @dataclass
+class User:
+    address: TAddress
+    privateKey: str
+
+
+@dataclass
 class BodyOptimalFee:
     fromAddress: TAddress
     toAddress: TAddress

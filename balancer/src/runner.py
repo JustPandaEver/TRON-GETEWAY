@@ -4,7 +4,7 @@ from typing import Optional, List, Dict
 
 import aio_pika
 
-from src.helper.repository import addresses_repository
+from src.utils.repository import addresses_repository
 from worker.celery_app import celery_app
 from config import Config, logger
 

@@ -1,7 +1,7 @@
 import decimal
 from typing import Union
 
-from src.helper.types import MIN_SUN, MAX_SUN, SUN
+from src.utils.types import MIN_SUN, MAX_SUN, SUN
 
 
 class Utils:
