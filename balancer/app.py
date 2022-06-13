@@ -1,5 +1,7 @@
 import asyncio
 
+from art import tprint
+
 from src.runner import run
 from config import logger
 
@@ -10,6 +12,7 @@ async def main(loop):
 
 
 if __name__ == '__main__':
+    tprint("TRON BALANCER", font="bulbhead")
     loop = None
     try:
         logger.error("START BALANCER")
