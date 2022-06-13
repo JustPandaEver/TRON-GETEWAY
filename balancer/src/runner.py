@@ -5,6 +5,7 @@ from typing import Optional, List, Dict
 import aio_pika
 
 from src.utils.repository import addresses_repository
+from src.utils.utils import utils
 from worker.celery_app import celery_app
 from config import Config, logger
 
@@ -28,7 +29,7 @@ async def processing_message(message: aio_pika.IncomingMessage):
 async def run(loop):
     while True:
         try:
-            connection: Optional[aio_pika.RobustConnection]  = None
+            connection: Optional[aio_pika.RobustConnection] = None
             while connection is None or connection.is_closed:
                 try:
                     # Connect to RabbitMQ by url
@@ -36,7 +37,7 @@ async def run(loop):
                         Config.RABBITMQ_URL, loop=loop
                     )
                 finally:
-                    logger.error(f'WAIT CONNECT TO RABBITMQ')
+                    logger.error(f'{utils.time_now()} | WAIT CONNECT TO RABBITMQ')
                 await asyncio.sleep(2)
             async with connection:
                 # Connect to the RabbitMQ channel
@@ -47,4 +48,4 @@ async def run(loop):
                     async for message in queue_iter:
                         await processing_message(message=message)
         except Exception as error:
-            logger.error(f"ERROR STEP : {error}")
+            logger.error(f"{utils.time_now()} | ERROR STEP 32: {error}")

@@ -92,6 +92,6 @@ async def send_to_wallet_to_wallet(address: TAddress, token: str, message: List[
             amount=float(balance)
         ))
     except Exception as error:
-        logger.error(f"ERROR STEP 41: {error}")
+        logger.error(f"{utils.time_now()} | ERROR STEP 40: {error}")
         await helper.write_to_error(error=str(error), step=41, message=str(message))
         await sender.resend_to_balancer(message=message)
