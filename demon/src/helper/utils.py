@@ -1,11 +1,15 @@
+import os
+import uuid
+import json
 import decimal
 import base58
-from typing import Any, Union, Optional, List, Tuple
+from typing import Any, Union, Optional, List, Tuple, Dict
 
+import aiofiles
 from tronpy.tron import TAddress
 
 from src.helper.types import MAX_SUN, MIN_SUN, SUN
-from config import decimals as dml
+from config import NOT_SEND, ERROR, decimals as dml
 
 
 class Utils:
@@ -70,3 +74,15 @@ class Utils:
             return [data]
         else:
             raise Exception("Something is wrong!")
+
+
+class Helper:
+    @staticmethod
+    async def write_to_not_send(message: List[Dict]) -> Optional:
+        async with aiofiles.open(os.path.join(NOT_SEND, f"{uuid.uuid4()}.json"), 'w') as file:
+            await file.write(json.dumps(message))
+
+    @staticmethod
+    async def write_to_error(error: str, step: int, message: str = None) -> Optional:
+        async with aiofiles.open(ERROR, 'a', encoding='utf-8') as file:
+            await file.write(f"{error} STEP {step} | MESSAGE: {message if message is not None else '~Not message~'}")

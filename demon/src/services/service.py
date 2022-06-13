@@ -4,6 +4,7 @@ from typing import Optional, List, Dict
 
 import aiofiles
 import aio_pika
+import aiohttp
 import requests
 from tronpy.tron import TAddress
 
@@ -28,10 +29,9 @@ async def send_all_from_folder_not_send():
 
 class Sender:
     @staticmethod
-    async def send_to_balancer(message: List[Dict]):
+    async def send_to_balancer(message: List[Dict]) -> Optional:
         """Send transaction to Balancer"""
         connection: Optional[aio_pika.RobustConnection] = None
-        channel: Optional[aio_pika.RobustChannel] = None
         try:
             connection = await aio_pika.connect_robust(url=Config.RABBITMQ_URL)
             channel = await connection.channel()
@@ -48,9 +48,18 @@ class Sender:
 
 
 class Getter:
+    USER_ADDRESSES = Config.API_URL + "/get-user-addresses"
+
     @staticmethod
-    async def get_addresses() -> List[TAddress]:
-        pass
+    async def get_addresses() -> Optional[List[TAddress]]:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url=Getter.USER_ADDRESSES) as response:
+                    addresses = await response.json()
+            return addresses
+        except Exception as error:
+            logger.error(f"ERROR STEP 58: {error}")
+            return []
 
     @staticmethod
     def get_all_blocks_by_list_addresses(addresses: List[TAddress]) -> List[int]:
