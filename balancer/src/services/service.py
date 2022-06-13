@@ -1,5 +1,5 @@
 import json
-from typing import Optional, List, Dict
+from typing import Optional, Dict
 
 import aiohttp
 import aio_pika
@@ -11,33 +11,13 @@ from src.utils.utils import utils, helper
 from config import Config, logger
 
 
-class Getter:
-    USER_PRIVATE_KEY = Config.API_URL + "/get-private-key/"
-
-    @staticmethod
-    async def get_private_key(address: TAddress) -> str:
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                        url=Getter.USER_PRIVATE_KEY, param={'address': address}
-                ) as response:
-                    private_key = await response.json()
-            if "privateKey" in private_key:
-                raise NotPrivateKey((
-                    f'{utils.time_now()} '
-                    f'| THE PRIVATE KEY FOR THIS ACCOUNT WAS NOT FOUND | ADDRESS: {address}'
-                ))
-            return private_key.get("privateKey")
-        except Exception as error:
-            logger.error(f"{utils.time_now()} | ERROR STEP 18: {error}")
-            raise error
-
-
 class Sender:
+    """This class is used for sending data"""
     ADD_MONEY = Config.API_URL + "/add-user-money"
 
     @staticmethod
     async def send_to_alert(body: BodySendToAlert) -> Optional:
+        """Send a notification that the wallet has been replenished"""
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -49,7 +29,8 @@ class Sender:
             logger.error(f"{utils.time_now()} | ERROR STEP 44: {error}")
 
     @staticmethod
-    async def resend_to_balancer(message: List[Dict]) -> Optional:
+    async def resend_to_balancer(message: Dict) -> Optional:
+        """In case of an error, resend the data"""
         connection: Optional[aio_pika.RobustConnection] = None
         try:
             connection = await aio_pika.connect_robust(url=Config.RABBITMQ_URL)
@@ -69,5 +50,29 @@ class Sender:
                 await connection.close()
 
 
-getter = Getter
+class Getter:
+    """This class is used to get data"""
+    USER_PRIVATE_KEY = Config.API_URL + "/get-private-key/"
+
+    @staticmethod
+    async def get_private_key(address: TAddress) -> str:
+        """Get a private key at the wallet address"""
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                        url=Getter.USER_PRIVATE_KEY, param={'address': address}
+                ) as response:
+                    private_key = await response.json()
+            if "privateKey" in private_key:
+                raise NotPrivateKey((
+                    f'{utils.time_now()} '
+                    f'| THE PRIVATE KEY FOR THIS ACCOUNT WAS NOT FOUND | ADDRESS: {address}'
+                ))
+            return private_key.get("privateKey")
+        except Exception as error:
+            logger.error(f"{utils.time_now()} | ERROR STEP 18: {error}")
+            raise error
+
+
 sender = Sender
+getter = Getter
