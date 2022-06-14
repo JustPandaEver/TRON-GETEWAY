@@ -6,7 +6,6 @@ import aio_pika
 from tronpy.tron import TAddress
 
 from src.utils.types import BodySendToAlert
-from src.utils.exception import NotPrivateKey
 from src.utils.utils import utils, helper
 from config import Config, logger
 
@@ -64,10 +63,11 @@ class Getter:
                 ) as response:
                     private_key = await response.json()
             if "privateKey" in private_key:
-                raise NotPrivateKey((
+                logger.error((
                     f'{utils.time_now()} '
                     f'| THE PRIVATE KEY FOR THIS ACCOUNT WAS NOT FOUND | ADDRESS: {address}'
                 ))
+                raise Exception
             return private_key.get("privateKey")
         except Exception as error:
             logger.error(f"{utils.time_now()} | ERROR STEP 18: {error}")
