@@ -1,13 +1,12 @@
 import asyncio
 from decimal import Decimal
-from typing import Optional, List, Tuple, Dict
+from typing import Optional, Tuple
 
 from tronpy.tron import TAddress
 
 from src.services.inc.node import node_tron
 from src.services.helper.get_native import get_native
 from src.services.service import getter, sender
-from src.utils.exception import NotFeeResend, NotSendToMainWallet
 from src.utils.utils import utils, helper
 from src.utils.types import User, BodyOptimalFee, BodySendTransaction, BodySendToAlert
 from src.utils.types import CoinHelper
@@ -59,7 +58,8 @@ async def send_to_wallet_to_wallet(address: TAddress, token: str) -> Optional:
                 f"USER BALANCE: {balance_native} TRX | FEE PRICE {fee} TRX"
             ))
             if not await get_native(user.address, amount=fee):
-                raise NotFeeResend(f'{utils.time_now()} | THE NATIVE HAS BEEN SENT | TO: {user.address}')
+                logger.error(f'{utils.time_now()} | THE NATIVE HAS BEEN SENT | TO: {user.address}')
+                raise Exception
             await asyncio.sleep(10)
         logger.error((
             f"{utils.time_now()} | "
@@ -78,9 +78,7 @@ async def send_to_wallet_to_wallet(address: TAddress, token: str) -> Optional:
                 f"{utils.time_now()} | "
                 f"ADDRESS: {user.address} | THE TRANSFER TO THE MAIN WALLET DID NOT HAPPEN! | AMOUNT: {balance}"
             ))
-            raise NotSendToMainWallet(
-                f"{utils.time_now()} | THE TRANSFER TO THE MAIN WALLET DID NOT HAPPEN! | FROM: {user.address}"
-            )
+            raise Exception
         logger.error((
             f"{utils.time_now()} | "
             f"ADDRESS: {user.address} | THE MONEY HAS BEEN SUCCESSFULLY SENT TO THE MAIN WALLET: {Config.ADMIN_ADDRESS}"
