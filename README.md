@@ -39,3 +39,6 @@ It is used to work with the TRON node!
 > # Stop
 > docker-compose -f tron-geteway-docker-compose.yml stop
 > ```
+
+## Example of transactions in TRON SCAN:
+![image](https://user-images.githubusercontent.com/84931791/173503232-97d90d7f-e2b2-4d4f-bb55-3785993d3bff.png)
