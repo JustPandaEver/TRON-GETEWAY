@@ -41,4 +41,5 @@ It is used to work with the TRON node!
 > ```
 
 ## Example of transactions in TRON SCAN:
-![image](https://user-images.githubusercontent.com/84931791/173503232-97d90d7f-e2b2-4d4f-bb55-3785993d3bff.png)
+<!-- ![image](https://user-images.githubusercontent.com/84931791/173503232-97d90d7f-e2b2-4d4f-bb55-3785993d3bff.png) -->
+![image](https://user-images.githubusercontent.com/84931791/173518832-01766a04-7696-4c40-b5e2-52b044f5dfef.png)
