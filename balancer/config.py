@@ -23,6 +23,7 @@ decimals.prec = 8
 class Config:
     NETWORK = os.getenv("NETWORK", "TESTNET").upper()
     API_URL = os.getenv("API_URL", "https://task-alexey-prsarev")
+    BEARER_TOKEN = os.getenv("BEARER_TOKEN", "Bearer ...")
 
     REDIS_URL = os.getenv("REDIS_URL", "redis://:password123@tron_redis:6379/0")
     RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqps://yubbvrbt:52cIr-IEy45n6hptj5n0aIT0LRn0cnZ6@goose.rmq2.cloudamqp.com/yubbvrbt")
