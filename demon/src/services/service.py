@@ -57,10 +57,16 @@ class Getter:
     USERS_ADDRESS = Config.API_URL + "/get-user-addresses"
 
     @staticmethod
+    def __get_headers() -> Dict:
+        return {
+            "Authorization": Config.BEARER_TOKEN
+        }
+
+    @staticmethod
     async def get_addresses() -> Optional[List[TAddress]]:
         """Get the addresses of all wallets in the system"""
         try:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(headers=Getter.__get_headers()) as session:
                 async with session.get(url=Getter.USERS_ADDRESS) as response:
                     addresses = await response.json()
             return addresses
