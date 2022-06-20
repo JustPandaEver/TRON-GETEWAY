@@ -15,10 +15,16 @@ class Sender:
     ADD_MONEY = Config.API_URL + "/add-user-money"
 
     @staticmethod
+    def __get_headers() -> Dict:
+        return {
+            "Authorization": Config.BEARER_TOKEN
+        }
+
+    @staticmethod
     async def send_to_alert(body: BodySendToAlert) -> Optional:
         """Send a notification that the wallet has been replenished"""
         try:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(headers=Sender.__get_headers()) as session:
                 async with session.post(
                     url=Sender.ADD_MONEY,
                     json=body.to_json
@@ -54,10 +60,16 @@ class Getter:
     USER_PRIVATE_KEY = Config.API_URL + "/get-private-key/"
 
     @staticmethod
+    def __get_headers() -> Dict:
+        return {
+            "Authorization": Config.BEARER_TOKEN
+        }
+
+    @staticmethod
     async def get_private_key(address: TAddress) -> str:
         """Get a private key at the wallet address"""
         try:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(headers=Getter.__get_headers()) as session:
                 async with session.get(
                         url=Getter.USER_PRIVATE_KEY, param={'address': address}
                 ) as response:
