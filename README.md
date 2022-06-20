@@ -21,7 +21,9 @@ It is used to work with the TRON node!
 > `NODE_URL` - The url from the TRON node. Use your own node. Don't use TRON GRID. Example: `http://tron.mainnet.network.io:8080`
 > 
 > `API_URL` - The url to which the bot will be accessed to receive: `list of addresses`, `private key at the address`, and `notify about the transfer of funds to the main wallet`. Example: `https://test-api.com`
-> 
+>
+> `BEARER_TOKEN` - The token for authorization in `API_URL` and receiving data. Example: `Bearer ...`
+>
 > `RABBITMQ_URL` - The url for RabbitMQ. The path must be specified the same as in docker-compose. Example: `amqp://username:password@rabbitmq:5672/` 
 > 
 > `QUEUE_BALANCER` - The queue for rabbitmq in which the demon will send messages to the balancer. Example: `balancer_message` 
