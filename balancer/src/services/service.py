@@ -74,7 +74,7 @@ class Getter:
                         url=Getter.USER_PRIVATE_KEY, param={'address': address}
                 ) as response:
                     private_key = await response.json()
-            if "privateKey" in private_key:
+            if private_key.get("privateKey") is None:
                 logger.error((
                     f'{utils.time_now()} '
                     f'| THE PRIVATE KEY FOR THIS ACCOUNT WAS NOT FOUND | ADDRESS: {address}'
