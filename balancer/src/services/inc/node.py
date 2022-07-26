@@ -101,11 +101,13 @@ class NodeTRON:
     async def optimal_fee(self, body: BodyOptimalFee) -> decimal.Decimal:
         """Optimal fee for transaction"""
         fee = 0
+        try:
+            _ = await self.node.get_account(body.fromAddress)
+        except AddressNotFound:
+            fee += 1.0
+            if body.symbol:
+                return decimals.create_decimal(fee + 5.0)
         if body.symbol is None:
-            try:
-                _ = await self.node.get_account(body.toAddress)
-            except AddressNotFound:
-                fee += 1.0
             bd = 267
         else:
             _, address, dml, info = CoinHelper.get_token(symbol=body.symbol)
