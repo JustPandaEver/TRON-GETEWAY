@@ -1,6 +1,9 @@
 version: '3'
 
+
 services:
+
+
   tron_api:
     build:
       context: api/
@@ -16,6 +19,8 @@ services:
     logging:
       options:
         max-size: 100m
+        
+        
   tron_demon:
     restart: always
     build:
@@ -32,6 +37,7 @@ services:
     logging:
       options:
         max-size: 10m
+
 
   tron_rabbitmq:
     restart: always
@@ -72,6 +78,8 @@ services:
     logging:
       options:
         max-size: 10m
+        
+        
   tron_celery_flower:
     restart: always
     container_name: tron_celery_flower
@@ -116,6 +124,7 @@ services:
       options:
         max-size: 10m
 
+
   tron_balancer:
     restart: always
     build:
@@ -132,6 +141,7 @@ services:
     logging:
       options:
         max-size: 10m
+  
   
 networks:
   tron_geteway_network:
